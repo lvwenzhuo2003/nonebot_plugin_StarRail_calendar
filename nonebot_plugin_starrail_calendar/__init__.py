@@ -16,13 +16,13 @@ __plugin_meta__ = PluginMetadata(
     description="崩坏：星穹铁道活动日历",
     usage="srcl [on|off]|[time hh:mm]|[status]",
     extra={
-        'author':   'TonyKun',
-        'version':  '1.1',
+        'author': 'TonyKun',
+        'version': '1.1',
         'priority': 24,
         "srhelp": """\
 查询活动日历: srcl
 开启日历订阅：srcl on/off
-指定订阅时间：srcl time hh:mm
+指定订阅时间：srcl time HH:mm
 查看订阅设置：srcl status
 """,
     },
@@ -146,20 +146,22 @@ async def _(event: Union[GroupMessageEvent, MessageEvent], msg: Message = Comman
                         at_sender=True)
 
             else:
-                await calendar.finish("请给出正确的时间，格式为12:00", at_sender=True)
+                timedateref = "https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html"
+                await calendar.finish(f"请给出正确的时间，格式为HH:mm，24小时制\n请参阅{timedateref}获取更多信息", at_sender=True)
 
         # 查询订阅推送状态
         elif action.group('action') == "status":
             try:
-                message = "订阅日历: {0}\n" \
-                          "推送时间: {1}:{2}".format(
-                    group_data[group_id]['server_list'],
-                    group_data[group_id]['hour'],
-                    group_data[group_id]['minute']
-                )
+                server_list = group_data[group_id]['server_list']
+                if group_data[group_id]['hour'] < 10:
+                    hour = "0" + group_data[group_id]['hour']
+                else:
+                    hour = group_data[group_id]['hour'] + ""
+                if group_data[group_id]['minute'] < 10:
+                    minute = "0" + group_data[group_id]['minute']
+                else:
+                    minute = group_data[group_id]['minute'] + ""
+                message = f'已为本群订阅{server}服务器的日历，时间为每天{hour}:{minute}'
                 await calendar.finish(message)
             except KeyError as e:
-                await calendar.finish("当前Q群尚未开启日历推送，无法查看推送状态")
-
-
-
+                await calendar.finish("本群没有已订阅的日历")
