@@ -22,4 +22,4 @@
 
 
 ### 功能演示
-![calendar](preview.jpg)
+![calendar](.github/preview.jpg)
