@@ -154,13 +154,13 @@ async def _(event: Union[GroupMessageEvent, MessageEvent], msg: Message = Comman
             try:
                 server_list = group_data[group_id]['server_list']
                 if group_data[group_id]['hour'] < 10:
-                    hour = "0" + group_data[group_id]['hour']
+                    hour = "0" + str(group_data[group_id]['hour'])
                 else:
-                    hour = group_data[group_id]['hour'] + ""
+                    hour = str(group_data[group_id]['hour'])
                 if group_data[group_id]['minute'] < 10:
-                    minute = "0" + group_data[group_id]['minute']
+                    minute = "0" + str(group_data[group_id]['minute'])
                 else:
-                    minute = group_data[group_id]['minute'] + ""
+                    minute = str(group_data[group_id]['minute'])
                 message = f'已为本群订阅{server}服务器的日历，时间为每天{hour}:{minute}'
                 await calendar.finish(message)
             except KeyError as e:
