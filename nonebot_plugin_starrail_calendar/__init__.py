@@ -12,19 +12,25 @@ from .utils import *
 from .draw_calendar import *
 
 __plugin_meta__ = PluginMetadata(
-    name="星穹铁道活动日历",
-    description="查看《崩坏：星穹铁道》活动",
-    usage="<星穹/星琼>日历",
+    name="StarRailCalendar",
+    description="崩坏：星穹铁道活动日历",
+    usage="srcl [on|off]|[time hh:mm]|[status]",
     extra={
         'author':   'TonyKun',
         'version':  '1.1',
         'priority': 24,
-    }
+        "srhelp": """\
+查询活动日历: srcl
+开启日历订阅：srcl on/off
+指定订阅时间：srcl time hh:mm
+查看订阅设置：srcl status
+""",
+    },
 )
 
 driver = nonebot.get_driver()
 scheduler = AsyncIOScheduler()
-calendar = on_command('星穹日历', aliases={"星穹日历", '星琼日历', '星铁日历', '崩铁日历'}, priority=24, block=True)
+calendar = on_command('srcl', aliases={"星穹日历", '星琼日历', '星铁日历', '崩铁日历'}, priority=24, block=True)
 
 
 @driver.on_startup
@@ -36,7 +42,7 @@ async def _():
             trigger='cron',
             hour=group_data['hour'],
             minute=group_data['minute'],
-            id="starrali_calendar_" + group_id,
+            id="starrail_calendar_" + group_id,
             args=(group_id, group_data),
             misfire_grace_time=10
         )
@@ -56,7 +62,7 @@ def update_group_schedule(group_id, group_data):
         func=send_calendar,
         trigger='cron',
         args=(group_id, group_data),
-        id=f'starrali_calendar_{group_id}',
+        id=f'starrail_calendar_{group_id}',
         replace_existing=True,
         hour=group_data[group_id]['hour'],
         minute=group_data[group_id]['minute'],
@@ -97,8 +103,8 @@ async def _(event: Union[GroupMessageEvent, MessageEvent], msg: Message = Comman
             if event.message_type == 'guild':
                 await calendar.finish("暂不支持频道内推送~")
 
-            if scheduler.get_job('starrali_calendar_' + group_id):
-                scheduler.remove_job("starrali_calendar_" + group_id)
+            if scheduler.get_job('starrail_calendar_' + group_id):
+                scheduler.remove_job("starrail_calendar_" + group_id)
             save_data(group_data, 'data.json')
 
             scheduler.add_job(
@@ -106,7 +112,7 @@ async def _(event: Union[GroupMessageEvent, MessageEvent], msg: Message = Comman
                 trigger='cron',
                 hour=8,
                 minute=0,
-                id="starrali_calendar_" + group_id,
+                id="starrail_calendar_" + group_id,
                 args=(group_id, group_data[group_id]),
                 misfire_grace_time=10
             )
@@ -116,8 +122,8 @@ async def _(event: Union[GroupMessageEvent, MessageEvent], msg: Message = Comman
         # 关闭推送功能
         elif action.group('action') == 'off':
             del group_data[group_id]
-            if scheduler.get_job("starrali_calendar_" + group_id):
-                scheduler.remove_job("starrali_calendar_" + group_id)
+            if scheduler.get_job("starrail_calendar_" + group_id):
+                scheduler.remove_job("starrail_calendar_" + group_id)
             save_data(group_data, 'data.json')
             await calendar.finish('星穹日历推送已关闭', at_sender=True)
 
